@@ -1,0 +1,22 @@
+UnAPI'd
+Copyright 2026 UnAPI'd contributors
+
+UnAPI'd originated as a server-local derivative of Relmio. UnAPI'd 2.1 replaces
+the earlier JavaScript implementation with a substantially rewritten Go design.
+The modification record is distributed in UPSTREAM.md.
+
+The following attribution notice is retained from Relmio's NOTICE file:
+
+Relmio
+Copyright 2026 Relmio contributors
+
+Relmio uses software and methods developed by Evan Zhou and the OpenAI OAuth
+contributors:
+
+OpenAI OAuth
+Copyright 2026 Evan Zhou and OpenAI OAuth contributors
+https://github.com/EvanZhouDev/openai-oauth
+
+OpenAI OAuth is licensed under the Apache License, Version 2.0.
+
+Relmio source: https://github.com/Demonbane18/relmio

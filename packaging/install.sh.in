@@ -1,0 +1,67 @@
+#!/bin/sh
+# This server-local installer replaces Relmio's workstation bootstrap and was
+# substantially rewritten by UnAPI'd contributors.
+set -eu
+
+download_base=https://www.asherflora.com/unapid
+install_directory=/usr/local/lib/unapid
+install_target=$install_directory/unapid
+command_link=/usr/local/bin/unapid
+
+if [ "$(id -u)" -ne 0 ]; then
+  printf '%s\n' "Run this installer as root, for example: curl -fsSL https://asherflora.com/unapid/install.sh | sudo sh" >&2
+  exit 1
+fi
+
+for required_command in awk chmod curl install ln mktemp mv rm sha256sum uname; do
+  if ! command -v "$required_command" >/dev/null 2>&1; then
+    printf '%s\n' "Missing required command: $required_command" >&2
+    exit 1
+  fi
+done
+
+case "$(uname -m)" in
+  x86_64|amd64)
+    artifact=unapid-linux-amd64
+    expected_sha256=__AMD64_SHA256__
+    ;;
+  aarch64|arm64)
+    artifact=unapid-linux-arm64
+    expected_sha256=__ARM64_SHA256__
+    ;;
+  *)
+    printf '%s\n' "UnAPI'd supports Linux x86_64 and ARM64 hosts." >&2
+    exit 1
+    ;;
+esac
+
+temporary_directory=$(mktemp -d "${TMPDIR:-/tmp}/unapid-install.XXXXXX")
+cleanup() {
+  rm -r "$temporary_directory"
+}
+trap cleanup EXIT HUP INT TERM
+
+download=$temporary_directory/unapid
+curl --fail --silent --show-error --location \
+  --proto '=https' --tlsv1.2 \
+  --output "$download" "$download_base/$artifact"
+
+actual_sha256=$(sha256sum "$download" | awk '{print $1}')
+if [ "$actual_sha256" != "$expected_sha256" ]; then
+  printf '%s\n' "UnAPI'd download checksum verification failed." >&2
+  exit 1
+fi
+
+if [ -e "$command_link" ] && [ ! -L "$command_link" ]; then
+  printf '%s\n' "$command_link already exists and is not a symbolic link." >&2
+  exit 1
+fi
+
+install -d -m 0755 "$install_directory"
+install -m 0755 "$download" "$install_target.new"
+mv "$install_target.new" "$install_target"
+ln -sfn "$install_target" "$command_link"
+
+"$command_link" --version >/dev/null
+
+printf '%s\n' "UnAPI'd installed. Run: sudo unapid"

@@ -1,0 +1,16 @@
+# Modified by UnAPI'd contributors from the original Relmio project file.
+
+.env
+.env.*
+!.env.example
+dist/*
+!dist/install.sh
+!dist/unapid-linux-amd64
+!dist/unapid-linux-arm64
+*.log
+*.pem
+*.key
+auth.json
+.codex/
+.DS_Store
+/unapid
